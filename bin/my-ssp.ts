@@ -10,7 +10,7 @@ const env = { account, region };
 const blueprint = ssp.EksBlueprint.builder()
   .account(account)
   .region(region)
-  .addOns()
+  .addOns(new ssp.ClusterAutoScalerAddOn)
   .teams(new TeamPlatform(account), new TeamApplication('burnham'));
   
 // Build Codepipeline
