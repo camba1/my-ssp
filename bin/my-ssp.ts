@@ -13,6 +13,22 @@ const blueprint = ssp.EksBlueprint.builder()
   .addOns(new ssp.ClusterAutoScalerAddOn)
   .teams(new TeamPlatform(account), new TeamApplication('burnham'));
   
+  const repoUrl = 'https://github.com/aws-samples/ssp-eks-workloads.git';
+
+// Add ArgoCD parameters
+const bootstrapRepo : ssp.ApplicationRepository = {
+    repoUrl,
+    targetRevision: 'workshop',
+}
+
+const prodBootstrapArgo = new ssp.ArgoCDAddOn({
+    bootstrapRepo: {
+        ...bootstrapRepo,
+        path: 'envs/prod'
+    },
+});
+
+  
 // Build Codepipeline
 ssp.CodePipelineStack.builder()
   .name("ssp-eks-workshop-pipeline")
@@ -26,5 +42,8 @@ ssp.CodePipelineStack.builder()
   .stage({
     id: 'prod',
     stackBuilder: blueprint.clone('us-west-2')
+      .addOns(
+          prodBootstrapArgo,
+      )
   })
   .build(app, 'pipeline-stack', {env});
